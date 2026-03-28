@@ -18,6 +18,7 @@ class GeminiSessionViewModel: ObservableObject {
   private let eventClient = OpenClawEventClient()
   private var lastVideoFrameTime: Date = .distantPast
   private var stateObservation: Task<Void, Never>?
+  private var autonomousAnalysisTask: Task<Void, Never>?
 
   var streamingMode: StreamingMode = .glasses
 
@@ -25,7 +26,7 @@ class GeminiSessionViewModel: ObservableObject {
     guard !isGeminiActive else { return }
 
     guard GeminiConfig.isConfigured else {
-      errorMessage = "Gemini API key not configured. Open GeminiConfig.swift and replace YOUR_GEMINI_API_KEY with your key from https://aistudio.google.com/apikey"
+      errorMessage = "Phantom requires a Gemini API key. Go to Settings and enter your key from https://aistudio.google.com/apikey"
       return
     }
 
@@ -174,9 +175,34 @@ class GeminiSessionViewModel: ObservableObject {
       }
       eventClient.connect()
     }
+
+    // Start Phantom autonomous scene analysis loop
+    startAutonomousAnalysis()
+  }
+
+  private func startAutonomousAnalysis() {
+    guard SettingsManager.shared.phantomAutonomousEnabled else { return }
+    autonomousAnalysisTask = Task { [weak self] in
+      // Wait a few seconds for the session to stabilize before first analysis
+      try? await Task.sleep(nanoseconds: 5_000_000_000)
+      while !Task.isCancelled {
+        guard let self else { break }
+        let interval = SettingsManager.shared.phantomAnalysisInterval
+        let ns = UInt64(interval * 1_000_000_000)
+        try? await Task.sleep(nanoseconds: ns)
+        guard !Task.isCancelled else { break }
+        guard self.isGeminiActive, self.connectionState == .ready else { continue }
+        // Don't interrupt if model is currently speaking or a tool call is active
+        guard !self.isModelSpeaking, !self.toolCallStatus.isActive else { continue }
+        NSLog("[Phantom] Sending autonomous scene analysis prompt")
+        self.geminiService.sendTextMessage("[PHANTOM_ANALYZE] Look at what you currently see through the camera. Identify anything actionable based on the confidence system. If nothing actionable, respond with only the word \"nothing\". Do not speak unless you have something to act on or ask about.")
+      }
+    }
   }
 
   func stopSession() {
+    autonomousAnalysisTask?.cancel()
+    autonomousAnalysisTask = nil
     eventClient.disconnect()
     toolCallRouter?.cancelAll()
     toolCallRouter = nil

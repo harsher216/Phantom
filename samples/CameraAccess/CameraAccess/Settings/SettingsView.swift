@@ -14,6 +14,10 @@ struct SettingsView: View {
   @State private var speakerOutputEnabled: Bool = false
   @State private var videoStreamingEnabled: Bool = true
   @State private var proactiveNotificationsEnabled: Bool = true
+  @State private var phantomAutonomousEnabled: Bool = true
+  @State private var phantomAnalysisInterval: Double = 10.0
+  @State private var phantomConfidenceThreshold: Int = 1
+  @State private var phantomUserPreferences: String = ""
   @State private var showResetConfirmation = false
 
   var body: some View {
@@ -104,6 +108,35 @@ struct SettingsView: View {
           Toggle("Proactive Notifications", isOn: $proactiveNotificationsEnabled)
         }
 
+        Section(header: Text("Phantom Autonomous Mode"), footer: Text("When enabled, Phantom proactively analyzes your camera view and takes actions based on the confidence system.")) {
+          Toggle("Autonomous Mode", isOn: $phantomAutonomousEnabled)
+
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Analysis Interval: \(Int(phantomAnalysisInterval))s")
+              .font(.caption)
+              .foregroundColor(.secondary)
+            Slider(value: $phantomAnalysisInterval, in: 5...60, step: 5)
+          }
+
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Confidence Mode")
+              .font(.caption)
+              .foregroundColor(.secondary)
+            Picker("Confidence", selection: $phantomConfidenceThreshold) {
+              Text("Aggressive").tag(0)
+              Text("Balanced").tag(1)
+              Text("Cautious").tag(2)
+            }
+            .pickerStyle(.segmented)
+          }
+        }
+
+        Section(header: Text("Learned Preferences"), footer: Text("Preferences Phantom has learned from your interactions. Edit or clear them here.")) {
+          TextEditor(text: $phantomUserPreferences)
+            .font(.system(.body, design: .monospaced))
+            .frame(minHeight: 100)
+        }
+
         Section {
           Button("Reset to Defaults") {
             showResetConfirmation = true
@@ -111,7 +144,7 @@ struct SettingsView: View {
           .foregroundColor(.red)
         }
       }
-      .navigationTitle("Settings")
+      .navigationTitle("Phantom Settings")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .navigationBarLeading) {
@@ -153,6 +186,10 @@ struct SettingsView: View {
     speakerOutputEnabled = settings.speakerOutputEnabled
     videoStreamingEnabled = settings.videoStreamingEnabled
     proactiveNotificationsEnabled = settings.proactiveNotificationsEnabled
+    phantomAutonomousEnabled = settings.phantomAutonomousEnabled
+    phantomAnalysisInterval = settings.phantomAnalysisInterval
+    phantomConfidenceThreshold = settings.phantomConfidenceThreshold
+    phantomUserPreferences = settings.phantomUserPreferences
   }
 
   private func save() {
@@ -168,5 +205,9 @@ struct SettingsView: View {
     settings.speakerOutputEnabled = speakerOutputEnabled
     settings.videoStreamingEnabled = videoStreamingEnabled
     settings.proactiveNotificationsEnabled = proactiveNotificationsEnabled
+    settings.phantomAutonomousEnabled = phantomAutonomousEnabled
+    settings.phantomAnalysisInterval = phantomAnalysisInterval
+    settings.phantomConfidenceThreshold = phantomConfidenceThreshold
+    settings.phantomUserPreferences = phantomUserPreferences
   }
 }

@@ -57,11 +57,11 @@ struct NonStreamView: View {
             .aspectRatio(contentMode: .fit)
             .frame(width: 120)
 
-          Text("Stream Your Glasses Camera")
+          Text("Phantom")
             .font(.system(size: 20, weight: .semibold))
             .foregroundColor(.white)
 
-          Text("Tap the Start streaming button to stream video from your glasses or use the camera button to take a photo from your glasses.")
+          Text("Start streaming to activate Phantom's autonomous vision. Phantom will proactively observe your world and take action based on what it sees.")
             .font(.system(size: 15))
             .multilineTextAlignment(.center)
             .foregroundColor(.white)

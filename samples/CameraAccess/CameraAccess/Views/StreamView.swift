@@ -126,7 +126,7 @@ struct StreamView: View {
       }
     }
     // Gemini error alert
-    .alert("AI Assistant", isPresented: Binding(
+    .alert("Phantom", isPresented: Binding(
       get: { geminiVM.errorMessage != nil },
       set: { if !$0 { geminiVM.errorMessage = nil } }
     )) {

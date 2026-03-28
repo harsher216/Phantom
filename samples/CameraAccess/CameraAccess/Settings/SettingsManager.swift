@@ -16,6 +16,11 @@ final class SettingsManager {
     case speakerOutputEnabled
     case videoStreamingEnabled
     case proactiveNotificationsEnabled
+    // Phantom
+    case phantomAutonomousEnabled
+    case phantomAnalysisInterval
+    case phantomConfidenceThreshold
+    case phantomUserPreferences
   }
 
   private init() {}
@@ -85,13 +90,52 @@ final class SettingsManager {
     set { defaults.set(newValue, forKey: Key.proactiveNotificationsEnabled.rawValue) }
   }
 
+  // MARK: - Phantom
+
+  var phantomAutonomousEnabled: Bool {
+    get { defaults.object(forKey: Key.phantomAutonomousEnabled.rawValue) as? Bool ?? true }
+    set { defaults.set(newValue, forKey: Key.phantomAutonomousEnabled.rawValue) }
+  }
+
+  /// Interval in seconds between autonomous scene analyses (5-60)
+  var phantomAnalysisInterval: Double {
+    get {
+      let stored = defaults.double(forKey: Key.phantomAnalysisInterval.rawValue)
+      return stored > 0 ? stored : 10.0
+    }
+    set { defaults.set(newValue, forKey: Key.phantomAnalysisInterval.rawValue) }
+  }
+
+  /// Confidence threshold: 0 = act on everything, 1 = high confidence only, 2 = ask for everything
+  var phantomConfidenceThreshold: Int {
+    get { defaults.integer(forKey: Key.phantomConfidenceThreshold.rawValue) }
+    set { defaults.set(newValue, forKey: Key.phantomConfidenceThreshold.rawValue) }
+  }
+
+  /// User preferences learned over time, newline-separated
+  var phantomUserPreferences: String {
+    get { defaults.string(forKey: Key.phantomUserPreferences.rawValue) ?? "" }
+    set { defaults.set(newValue, forKey: Key.phantomUserPreferences.rawValue) }
+  }
+
+  func addUserPreference(_ preference: String) {
+    let current = phantomUserPreferences
+    if current.isEmpty {
+      phantomUserPreferences = preference
+    } else {
+      phantomUserPreferences = current + "\n" + preference
+    }
+  }
+
   // MARK: - Reset
 
   func resetAll() {
     for key in [Key.geminiAPIKey, .geminiSystemPrompt, .openClawHost, .openClawPort,
                 .openClawHookToken, .openClawGatewayToken, .webrtcSignalingURL,
                 .speakerOutputEnabled, .videoStreamingEnabled,
-                .proactiveNotificationsEnabled] {
+                .proactiveNotificationsEnabled,
+                .phantomAutonomousEnabled, .phantomAnalysisInterval,
+                .phantomConfidenceThreshold, .phantomUserPreferences] {
       defaults.removeObject(forKey: key.rawValue)
     }
   }

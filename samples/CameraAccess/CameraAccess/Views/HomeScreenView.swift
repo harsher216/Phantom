@@ -48,18 +48,18 @@ struct HomeScreenView: View {
         VStack(spacing: 12) {
           HomeTipItemView(
             resource: .smartGlassesIcon,
-            title: "Video Capture",
-            text: "Record videos directly from your glasses, from your point of view."
+            title: "Autonomous Vision",
+            text: "Phantom sees what you see and proactively takes action -- no commands needed."
           )
           HomeTipItemView(
             resource: .soundIcon,
-            title: "Open-Ear Audio",
-            text: "Hear notifications while keeping your ears open to the world around you."
+            title: "Confidence System",
+            text: "Three tiers of confidence: act silently, ask permission, or observe only."
           )
           HomeTipItemView(
             resource: .walkingIcon,
-            title: "Enjoy On-the-Go",
-            text: "Stay hands-free while you move through your day. Move freely, stay connected."
+            title: "Learns From You",
+            text: "Phantom adapts to your preferences over time. The more you use it, the smarter it gets."
           )
         }
 

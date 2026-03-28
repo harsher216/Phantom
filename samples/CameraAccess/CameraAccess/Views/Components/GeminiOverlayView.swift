@@ -24,10 +24,10 @@ struct GeminiStatusBar: View {
 
   private var geminiStatusText: String {
     switch geminiVM.connectionState {
-    case .ready: return "Gemini"
-    case .connecting, .settingUp: return "Gemini..."
-    case .error: return "Gemini Error"
-    case .disconnected: return "Gemini Off"
+    case .ready: return "Phantom"
+    case .connecting, .settingUp: return "Phantom..."
+    case .error: return "Phantom Error"
+    case .disconnected: return "Phantom Off"
     }
   }
 
